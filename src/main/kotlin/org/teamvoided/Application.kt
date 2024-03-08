@@ -9,12 +9,14 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.css.Color
-import kotlinx.css.CssBuilder
 import kotlinx.css.backgroundColor
 import kotlinx.css.color
 import kotlinx.html.*
 import org.teamvoided.env.Env
+import org.teamvoided.temp.makeTestPage
 import org.teamvoided.util.assetFile
+import org.teamvoided.util.respondBody
+import org.teamvoided.util.respondCss
 
 fun main() {
     val env = Env()
@@ -32,40 +34,77 @@ fun Application.routing() = routing {
         call.respond(HttpStatusCode.OK)
     }
 
+    get("/debug") {
+        call.respond("Hello $this. ")
+    }
+
     staticResources("/static", "assets")
 
     get("/") {
-        call.respondHtml(HttpStatusCode.OK) { index(MyRoutes.HOME) }
+        call.respondHtml(HttpStatusCode.OK) { basicPage { home() } }
     }
 
     route("/voided-tweaks") {
-        get { call.respondHtml { index(MyRoutes.VOIDED_TWEAKS) } }
+        get {
+            call.respondHtml { basicPage { voidedTweaks() } }
+        }
+        get("/data") {
+            call.respondHtml { basicPage { voidedTweaks() } }
+        }
+        get("/crafting") {
+            call.respondHtml { basicPage { voidedTweaks(VoidedTweaksRoutes.CRAFTING) } }
+        }
+        get("/resource") {
+            call.respondHtml { basicPage { voidedTweaks(VoidedTweaksRoutes.RESOURCE) } }
+
+        }
+    }
+
+    route("/triminator") {
+        get { call.respondHtml { basicPage { triminator() } } }
     }
 
     get("/test") {
-        call.respondHtml { index(MyRoutes.TEST) }
+        call.respondHtml { basicPage { test() } }
     }
 
     route("/cmp") {
 
         route("/") {
-            get { call.respondHtml { body { home() } } }
+            get { call.respondBody { home() } }
         }
 
         route("/voided-tweaks") {
-            get { call.respondHtml { body { voidedTweaks() } } }
+            get {
+                call.respondBody { voidedTweaks() }
+            }
+            get("/data") {
+                call.respondBody { voidedTweaks() }
+            }
+            get("/crafting") {
+                call.respondBody { voidedTweaks(VoidedTweaksRoutes.CRAFTING) }
+            }
+            get("/resource") {
+                call.respondBody { voidedTweaks(VoidedTweaksRoutes.RESOURCE) }
+            }
+
         }
 
         get("/test") {
-            call.respondHtml { body { test() } }
+            call.respondBody { test() }
         }
+
+        get("/triminator") {
+            call.respondBody { triminator() }
+        }
+
         get("/*") {
-            call.respondHtml { body { error() } }
+            call.respondBody { errorPage() }
         }
     }
 
     get("/*") {
-        call.respondHtml { index(MyRoutes.ERROR) }
+        call.respondHtml { basicPage { errorPage() } }
     }
 
     get("/styles.css") {
@@ -80,11 +119,7 @@ fun Application.routing() = routing {
     }
 }
 
-suspend inline fun ApplicationCall.respondCss(builder: CssBuilder.() -> Unit) {
-    this.respondText(CssBuilder().apply(builder).toString(), ContentType.Text.CSS)
-}
-
-fun HTML.index(route: MyRoutes) {
+fun HTML.basicPage(content: FlowContent.() -> Unit = {}) {
     head {
         title("TeamVoided Site")
         link {
@@ -96,44 +131,15 @@ fun HTML.index(route: MyRoutes) {
         script { src = "https://unpkg.com/htmx.org@1.9.10" }
     }
 
-    body {
-        classes += "bg-bg text-text"
-        nav(MyRoutes.entries.filter { it != MyRoutes.ERROR })
-        div {
+    body("bg-bg text-text h-full") {
+        nav(MainRoutes.entries.filter { it != MainRoutes.ERROR })
+        div("h-full") {
             id = "main-content"
-            when(route){
-                MyRoutes.HOME -> home()
-                MyRoutes.VOIDED_TWEAKS -> voidedTweaks()
-                MyRoutes.TEST -> test()
-                MyRoutes.ERROR -> error()
-            }
+            content()
         }
     }
 }
 
-
-fun FlowContent.nav(
-    tabs: List<MyRoutes>,
-    header: String = "w-full px-10 py-2 flex-col flex",
-    nav: String = "w-full flex items-center justify-center gap-16 text-xl",
-    a: String = "hover:underline hover:scale-110"
-) {
-    header {
-        classes += header
-        nav {
-            classes += nav
-            tabs.forEach {
-                button {
-                    classes += a
-                    attributes["hx-get"] = "/cmp${it.url}"
-                    attributes["hx-push-url"] = it.url
-                    attributes["hx-target"] = "#main-content"
-                    +it.visName
-                }
-            }
-        }
-    }
-}
 
 fun FlowContent.home() {
     div {
@@ -150,47 +156,83 @@ fun FlowContent.home() {
     }
 }
 
-fun FlowContent.voidedTweaks() {
-//    nav(
-//        mapOf(
-//            "Data" to "voided-tweaks/data",
-//            "Resource" to "voided-tweaks/resource",
-//            "Crafting" to "voided-tweaks/craft"
-//        )
-//    )
-    h1 { +"Hello from vt" }
+fun FlowContent.voidedTweaks(page: VoidedTweaksRoutes = VoidedTweaksRoutes.DATA) {
+    nav(VoidedTweaksRoutes.entries)
+    h1 {
+        +when (page) {
+            VoidedTweaksRoutes.DATA -> "Hello from DATA"
+            VoidedTweaksRoutes.CRAFTING -> "Hello CRAFTING"
+            VoidedTweaksRoutes.RESOURCE -> "Hello from RESOURCE"
+        }
+    }
 }
 
 fun FlowContent.test() {
-    div {
-        classes += "flex h-[90vh] flex-col items-center justify-center gap-8"
-        h1 {
-            classes += "text-xl"
-            +"TEST"
-        }
-    }
+    makeTestPage()
 }
 
-fun FlowContent.error() {
-    div {
-        classes += "flex flex-col w-full h-[90vh] items-center justify-center gap-5"
-        h1 {
-            classes += "text-xl font-semibold"
+fun FlowContent.errorPage() {
+    div("flex flex-col w-full h-[90vh] items-center justify-center gap-5") {
+        h1("text-xl font-semibold") {
             +"404: Page Not Found"
         }
-        img {
-            classes += "w-64 rounded-3xl"
-            src = "https://media.tenor.com/UdO_ASApr9wAAAAC/emojedie.gif"
-            alt = "funy yellow dispier"
+        img("funy yellow dispier", "https://media.tenor.com/UdO_ASApr9wAAAAC/emojedie.gif", "w-64 rounded-3xl")
+    }
+}
+
+fun FlowContent.triminator() {
+    iframe(null, "w-full h-[90vh]") {
+        src = "https://triminator.vercel.app/"
+        title = "Triminator embed"
+    }
+}
+
+fun FlowContent.nav(
+    tabs: List<ArbitraryRout>,
+    header: String = "w-full px-10 py-2 flex-col flex",
+    nav: String = "w-full flex items-center justify-center gap-16 text-xl",
+    a: String = "hover:underline hover:scale-110"
+) {
+    header {
+        classes += header
+        nav {
+            classes += nav
+            tabs.forEach {
+                button {
+                    classes += a
+                    attributes["hx-get"] = "/cmp${it.url()}"
+                    attributes["hx-push-url"] = it.url()
+                    attributes["hx-target"] = "#main-content"
+                    +it.label()
+                }
+            }
         }
     }
 }
 
-enum class MyRoutes(val visName: String, val url: String) {
+enum class MainRoutes(val label: String, val url: String) : ArbitraryRout {
     HOME("Home", "/"),
     VOIDED_TWEAKS("Voided Tweaks", "/voided-tweaks"),
+    TRIMINATIOR("Triminator", "/triminator"),
     TEST("Test", "/test"),
+    ADMIN("Admin", "/admin"),
     ERROR("Error", "/*");
+
+    override fun label() = this.label
+    override fun url() = this.url
 }
 
 
+enum class VoidedTweaksRoutes(val label: String, val url: String) : ArbitraryRout {
+    DATA("Data Packs", "/data"),
+    CRAFTING("Crafting Tweaks", "/crafting"),
+    RESOURCE("Resource Packs", "/resource");
+
+    override fun label() = this.label
+    override fun url() = "/voided-tweaks" + this.url
+}
+
+interface ArbitraryRout {
+    fun label(): String
+    fun url(): String
+}
