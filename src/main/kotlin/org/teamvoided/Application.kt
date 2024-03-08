@@ -8,11 +8,13 @@ import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.css.Color
-import kotlinx.css.backgroundColor
-import kotlinx.css.color
+import kotlinx.css.*
 import kotlinx.html.*
 import org.teamvoided.env.Env
+import org.teamvoided.pages.Type
+import org.teamvoided.pages.itemList
+import org.teamvoided.pages.selectablePack
+import org.teamvoided.pages.voidedTweaksTemplate
 import org.teamvoided.temp.makeTestPage
 import org.teamvoided.util.assetFile
 import org.teamvoided.util.respondBody
@@ -87,6 +89,17 @@ fun Application.routing() = routing {
             get("/resource") {
                 call.respondBody { voidedTweaks(VoidedTweaksRoutes.RESOURCE) }
             }
+            route("{id}") {
+
+                post("/packAdd") {
+                    val id = call.parameters["id"]
+                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.REMOVE) }
+                }
+                post("/packRemove") {
+                    val id = call.parameters["id"]
+                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.ADD) }
+                }
+            }
 
         }
 
@@ -157,12 +170,14 @@ fun FlowContent.home() {
 }
 
 fun FlowContent.voidedTweaks(page: VoidedTweaksRoutes = VoidedTweaksRoutes.DATA) {
-    nav(VoidedTweaksRoutes.entries)
-    h1 {
-        +when (page) {
-            VoidedTweaksRoutes.DATA -> "Hello from DATA"
-            VoidedTweaksRoutes.CRAFTING -> "Hello CRAFTING"
-            VoidedTweaksRoutes.RESOURCE -> "Hello from RESOURCE"
+    subnav(VoidedTweaksRoutes.entries)
+    div {
+        h1 {
+            when (page) {
+                VoidedTweaksRoutes.DATA -> voidedTweaksTemplate()
+                VoidedTweaksRoutes.CRAFTING -> +"Hello CRAFTING"
+                VoidedTweaksRoutes.RESOURCE -> +"Hello from RESOURCE"
+            }
         }
     }
 }
@@ -173,10 +188,10 @@ fun FlowContent.test() {
 
 fun FlowContent.errorPage() {
     div("flex flex-col w-full h-[90vh] items-center justify-center gap-5") {
-        h1("text-xl font-semibold") {
-            +"404: Page Not Found"
+        h1("text-xl font-semibold") { +"404: Page Not Found" }
+        img("funy yellow dispier", classes = "w-64 rounded-3xl") {
+            src = "https://media.tenor.com/UdO_ASApr9wAAAAC/emojedie.gif"
         }
-        img("funy yellow dispier", "https://media.tenor.com/UdO_ASApr9wAAAAC/emojedie.gif", "w-64 rounded-3xl")
     }
 }
 
@@ -187,28 +202,6 @@ fun FlowContent.triminator() {
     }
 }
 
-fun FlowContent.nav(
-    tabs: List<ArbitraryRout>,
-    header: String = "w-full px-10 py-2 flex-col flex",
-    nav: String = "w-full flex items-center justify-center gap-16 text-xl",
-    a: String = "hover:underline hover:scale-110"
-) {
-    header {
-        classes += header
-        nav {
-            classes += nav
-            tabs.forEach {
-                button {
-                    classes += a
-                    attributes["hx-get"] = "/cmp${it.url()}"
-                    attributes["hx-push-url"] = it.url()
-                    attributes["hx-target"] = "#main-content"
-                    +it.label()
-                }
-            }
-        }
-    }
-}
 
 enum class MainRoutes(val label: String, val url: String) : ArbitraryRout {
     HOME("Home", "/"),

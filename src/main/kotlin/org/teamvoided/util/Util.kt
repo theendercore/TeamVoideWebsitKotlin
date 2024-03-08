@@ -1,5 +1,6 @@
 package org.teamvoided.util
 
+import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
@@ -11,6 +12,8 @@ import kotlinx.html.body
 import kotlin.io.path.Path
 
 fun assetFile(path: String) = Path("static/$path").toString()
+fun Version(version: String) = version.toVersion()
+
 suspend fun RoutingCall.respondBody(status: HttpStatusCode = HttpStatusCode.OK, block: FlowContent.() -> Unit) =
     this.respondHtml(status) { body { block() } }
 

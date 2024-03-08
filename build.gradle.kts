@@ -27,6 +27,7 @@ repositories {
 
 val arrow = "1.2.1"
 val sqldelight = "2.0.0"
+val semver_version = "1.4.2"
 
 dependencies {
     implementation("io.arrow-kt", "arrow-core", arrow)
@@ -56,4 +57,7 @@ dependencies {
 
     testImplementation("io.ktor", "ktor-server-tests-jvm", ktor_version)
     testImplementation("org.jetbrains.kotlin", "kotlin-test-junit", kotlin_version)
+
+    implementation("io.github.z4kn4fein","semver",semver_version)
+
 }
