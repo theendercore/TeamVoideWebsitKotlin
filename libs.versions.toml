@@ -1,11 +1,12 @@
 [versions]
 ktor = "3.0.0-beta-1"
-kotlin = "1.9.22"
+kotlin = "1.9.23"
 
 arrow = "1.2.1"
 
-postgres = "42.5.1"
-sqldelight = "2.0.0"
+postgres = "42.7.3"
+sqldelight = "2.0.1"
+hikari="5.1.0"
 
 h2 = "2.1.214"
 logback = "1.4.14"
@@ -27,7 +28,8 @@ kotlin-css = { module = "org.jetbrains.kotlin-wrappers:kotlin-css", version = "1
 
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
-postgresql-dialect = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+sqldelight-postgresql = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+hikari = { module = "com.zaxxer:HikariCP", version.ref="hikari" }
 
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
@@ -41,3 +43,4 @@ semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

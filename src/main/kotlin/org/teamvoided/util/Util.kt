@@ -11,6 +11,7 @@ import kotlinx.html.FlowContent
 import kotlinx.html.body
 import kotlin.io.path.Path
 
+const val DEFAULT_ICON = "https://vectorified.com/images/default-user-icon-33.jpg"
 fun assetFile(path: String) = Path("static/$path").toString()
 fun Version(version: String) = version.toVersion()
 

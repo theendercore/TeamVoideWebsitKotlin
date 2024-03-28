@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS pack(
+    id SMALLSERIAL PRIMARY KEY,
+    category_id SMALLSERIAL NOT NULL,
+    name text NOT NULL UNIQUE,
+    description text NOT NULL,
+    icon text NOT NULL
+);
+
+selectById:
+SELECT *
+FROM pack
+WHERE id = :id;
+
+
+selectByName:
+SELECT *
+FROM pack
+WHERE name = :name;
+
+create:
+INSERT INTO pack(category_id, name, description, icon)
+VALUES (:category_id, :name, :descirtion, :icon)
+RETURNING id;

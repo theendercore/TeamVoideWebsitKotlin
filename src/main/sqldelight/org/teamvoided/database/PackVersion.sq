@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS packVersion(
+    id SMALLSERIAL PRIMARY KEY,
+    pack_id SMALLSERIAL NOT NULL,
+    min_version text NOT NULL,
+    max_version text NOT NULL,
+    url text NOT NULL,
+    version text NOT NULL
+);
+
+selectById:
+SELECT *
+FROM packVersion
+WHERE id = :id;

@@ -1,16 +1,15 @@
 package org.teamvoided.pages
 
 import kotlinx.html.*
-import org.teamvoided.data.CategoryItem
+import org.teamvoided.data.PackItem
 import org.teamvoided.util.Version
-import java.util.*
+import java.net.URL
 
-fun testItem(categoryId: String, name: String) = CategoryItem(
-    UUID.randomUUID().toString(),
-    categoryId,
+fun testItem(categoryId: Short, name: String) = PackItem(
+    2, categoryId,
     name,
     Version("1.0.0"),
-    "yes",
+    URL("yes"),
     Version("1.20.2"),
     Version("1.2.5")
 )
@@ -18,17 +17,17 @@ fun testItem(categoryId: String, name: String) = CategoryItem(
 
 val mainPrefix = "/cmp/voided-tweaks"
 val itemList = listOf(
-    testItem("44356", "Terra Ore"),
-    testItem("44356", "Orange Planks"),
-    testItem("44356", "Redstone House"),
-    testItem("5454", "Hell Ore Prcoessor"),
-    testItem("5454", "Hell Planks"),
-    testItem("5454", "Hallowwer")
+    testItem(4435, "Terra Ore"),
+    testItem(4435, "Orange Planks"),
+    testItem(4435, "Redstone House"),
+    testItem(5454, "Hell Ore Prcoessor"),
+    testItem(5454, "Hell Planks"),
+    testItem(5454, "Hallowwer")
 )
 
 val categoryList = mapOf(
-    "Ola" to itemList.filter { it.categoryId == "44356" },
-    "Hell" to itemList.filter { it.categoryId == "5454" }
+    "Ola" to itemList.filter { it.categoryId == 4435.toShort() },
+    "Hell" to itemList.filter { it.categoryId == 5454.toShort() }
 )
 
 fun FlowContent.voidedTweaksTemplate() {
@@ -64,14 +63,14 @@ fun FlowContent.voidedTweaksTemplate() {
     }
 }
 
-fun FlowContent.selectablePack(item: CategoryItem, type: Type) {
+fun FlowContent.selectablePack(item: PackItem, type: Type) {
     button(
         classes = "w-28 lg:w-32 text-center flex flex-col items-center rounded-xl bg-opacity-5 px-3 py-6 cursor-pointer " +
                 if (type == Type.REMOVE) "bg-white" else ""
     ) {
         attributes["hx-post"] = "$mainPrefix/${item.id}/pack${type.id}"
         attributes["hx-swap"] = "outerHTML"
-        id = item.id
+        id = item.id.toString()
         img("$item icon", classes = "w-16") {
             src = "https://vectorified.com/images/default-user-icon-33.jpg"
         }

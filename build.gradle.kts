@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor) version "2.3.3"
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 group = "org.teamvoided"
@@ -19,7 +20,14 @@ repositories {
     mavenCentral()
 }
 
-val sqldelight = "2.0.0"
+sqldelight {
+    databases {
+        create("SqlDelight") {
+            packageName = "org.teamvoided.database"
+            dialect(libs.sqldelight.postgresql.get())
+        }
+    }
+}
 
 dependencies {
     implementation(libs.arrow.core)
@@ -38,7 +46,8 @@ dependencies {
 
     implementation(libs.postgresql)
     implementation(libs.jdbc.driver)
-    implementation(libs.postgresql.dialect)
+    implementation(libs.sqldelight.postgresql)
+    implementation(libs.hikari)
 
 
     implementation(libs.h2)

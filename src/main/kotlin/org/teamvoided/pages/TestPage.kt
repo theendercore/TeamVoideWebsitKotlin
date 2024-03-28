@@ -1,4 +1,4 @@
-package org.teamvoided.temp
+package org.teamvoided.pages
 
 import kotlinx.html.*
 

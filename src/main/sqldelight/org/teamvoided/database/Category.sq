@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS category(
+    id SMALLSERIAL PRIMARY KEY,
+    name text NOT NULL UNIQUE,
+    type text NOT NULL
+);
+
+selectById:
+SELECT *
+FROM category
+WHERE id = :id;
