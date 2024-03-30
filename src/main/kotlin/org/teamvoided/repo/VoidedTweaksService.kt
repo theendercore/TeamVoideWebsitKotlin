@@ -12,7 +12,7 @@ interface VoidedTweaksService {
 }
 
 fun voidedTweaksService(
-    packPersistence: PackPersistence, categoryPersistence: CategoryPersistence
+    ignored: PackPersistence, categoryPersistence: CategoryPersistence
 ): VoidedTweaksService {
     return object : VoidedTweaksService {
         override fun getCategories(type: CategoryType): Either<DomainError, List<Category>> = either {

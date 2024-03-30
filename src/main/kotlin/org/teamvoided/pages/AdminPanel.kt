@@ -23,7 +23,9 @@ fun Route.adminPanelRout(module: Dependencies) {
 
             put("/categories") {
                 val params = call.receiveParameters()
-                call.respondBody { p { +"${params}" } }
+
+                module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
+                call.respondBody { categoryList(module) }
             }
         }
 
@@ -36,8 +38,7 @@ fun Route.adminPanelRout(module: Dependencies) {
     }
 }
 
-fun FlowContent.adminPanelPage(dependencies: Dependencies) {
-    val categories = dependencies.voidedTweaksService.getAllCategories()
+fun FlowContent.adminPanelPage(module: Dependencies) {
     div("pt-8 w-full flex flex-col gap-6 items-center justify-center px-20") {
         h1("text-3xl black font-mono") { +"The super secret and evil admin panel!" }
         div("w-full flex gap-8 p-2 justify-around") {
@@ -46,33 +47,52 @@ fun FlowContent.adminPanelPage(dependencies: Dependencies) {
                 attributes["hx-target"] = "#category-content"
                 attributes["hx-swap"] = "innerHTML"
                 h3("text-lg bold") { +"Categories Form" }
-                div("w-full flex gap-2 items-center justify-between") {
+                div("w-full flex gap-4 items-center justify-between") {
                     label { +"Name " }
-                    input(classes = "px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
+                    input(classes = "max-w-56 px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
                         type = InputType.text
                         name = "name"
                     }
                 }
-                div("w-full flex gap-2 items-center justify-between") {
+                div("w-full flex gap-4 items-center justify-between") {
                     label { +"Type" }
-                    input(classes = "px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
-                        type = InputType.text
+//                    input(classes = "px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
+//                        type = InputType.text
+//                        name = "type"
+//                    }
+                    select("w-full max-w-56 px-3 py-2 bg-neutral-800 rounded-lg focus:outline-none") {
                         name = "type"
+                        CategoryType.entries.forEach {
+                            option {
+                                value = it.name
+                                +it.name
+                            }
+                        }
                     }
                 }
                 button(classes = "px-6 py-2 bg-white bg-opacity-20 rounded-full") { +"Submit" }
             }
 
+
             div("flex flex-col gap-2") {
                 attributes["id"] = "category-content"
-                when (categories) {
-                    is Either.Left -> div("flex flex-col items-center p-4") {
-                        h3("text-lg bold") { +"No Categories found!" }
-                        p("italic opacity-80") { +categories.value.toString() }
-                    }
+                categoryList(module)
+            }
+        }
+    }
+}
 
-                    is Either.Right -> categories.value.forEach { div("p-4") { +it.name } }
-                }
+fun FlowContent.categoryList(module: Dependencies) {
+    when (val categories = module.voidedTweaksService.getAllCategories()) {
+        is Either.Left -> div("flex flex-col items-center p-4") {
+            h3("text-lg bold") { +"No Categories found!" }
+            p("italic opacity-80") { +categories.value.toString() }
+        }
+
+        is Either.Right -> categories.value.forEach {
+            div("flex gap-2 items-center justify-center p-1") {
+                span { +it.name }
+                button(classes = "px-3 py-1 rounded-full bg-slate-800") { +"del" }
             }
         }
     }

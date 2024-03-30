@@ -1,19 +1,22 @@
 package org.teamvoided.env
 
 import arrow.fx.coroutines.ResourceScope
-import org.teamvoided.repo.VoidedTweaksService
-import org.teamvoided.repo.categoryPersistence
-import org.teamvoided.repo.packPersistence
-import org.teamvoided.repo.voidedTweaksService
+import org.teamvoided.repo.*
 
-class Dependencies(val voidedTweaksService: VoidedTweaksService)
+class Dependencies(
+    val voidedTweaksService: VoidedTweaksService,
+    val creatorService: CreatorService
+)
 
 suspend fun ResourceScope.dependencies(env: Env): Dependencies {
     val hikari = hikari(env.dataSource)
     val sqlDelight = sqlDelight(hikari)
+
     val packPersistence = packPersistence(sqlDelight.packQueries)
     val categoryPersistence = categoryPersistence(sqlDelight.categoryQueries)
+
+    val creatorService = creatorService(packPersistence, categoryPersistence)
     val voidedTweaksService = voidedTweaksService(packPersistence, categoryPersistence)
 
-    return Dependencies(voidedTweaksService)
+    return Dependencies(voidedTweaksService, creatorService)
 }
