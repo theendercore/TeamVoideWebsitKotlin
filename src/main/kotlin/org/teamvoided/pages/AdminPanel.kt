@@ -24,9 +24,8 @@ fun Route.adminPanelRout(module: Dependencies) {
             get("") { call.respondBody { adminPanelPage(module) } }
 
             put("/categories") {
-                val x = call.receiveText()
-                val q = call.request.rawQueryParameters.toMap().map { (a, b) -> b + a }.toString()
-                call.respondBody { p { +"$x -$q" } }
+                val params = call.receiveParameters()
+                call.respondBody { p { +"${params}" } }
             }
         }
 
