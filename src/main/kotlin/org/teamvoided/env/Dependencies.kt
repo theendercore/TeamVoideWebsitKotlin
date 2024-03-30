@@ -5,7 +5,7 @@ import org.teamvoided.repo.VoidedTweaksService
 import org.teamvoided.repo.packPersistence
 import org.teamvoided.repo.voidedTweaksService
 
-class Dependencies(voidedTweaksService: VoidedTweaksService)
+class Dependencies(val voidedTweaksService: VoidedTweaksService)
 
 suspend fun ResourceScope.dependencies(env: Env): Dependencies {
     val hikari = hikari(env.dataSource)

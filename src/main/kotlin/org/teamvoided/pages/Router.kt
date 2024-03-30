@@ -10,11 +10,12 @@ import kotlinx.css.Color
 import kotlinx.css.backgroundColor
 import kotlinx.css.color
 import kotlinx.html.*
+import org.teamvoided.env.Dependencies
 import org.teamvoided.util.assetFile
 import org.teamvoided.util.respondBody
 import org.teamvoided.util.respondCss
 
-fun Application.Routing() = routing {
+fun Application.Routing(module: Dependencies) = routing {
 
     staticResources("/static", "assets")
 
@@ -22,30 +23,31 @@ fun Application.Routing() = routing {
 
     get("/debug") { call.respond("Hello $this. ") }
 
-    get("/") { call.respondHtml(HttpStatusCode.OK) { basicPage { home() } } }
+    get("/") { call.respondHtml(HttpStatusCode.OK) { htmlWrapper { home() } } }
 
     route("/voided-tweaks") {
-        get { call.respondHtml { basicPage { voidedTweaks() } } }
-        get("/data") { call.respondHtml { basicPage { voidedTweaks() } } }
-        get("/crafting") { call.respondHtml { basicPage { voidedTweaks(VoidedTweaksRoutes.CRAFTING) } } }
-        get("/resource") { call.respondHtml { basicPage { voidedTweaks(VoidedTweaksRoutes.RESOURCE) } } }
+        get { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
+        get("/data") { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
+        get("/crafting") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } } }
+        get("/resource") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } } }
     }
 
-    route("/triminator") { get { call.respondHtml { basicPage { triminator() } } } }
+    route("/triminator") { get { call.respondHtml { htmlWrapper { triminator() } } } }
 
-    get("/test") { call.respondHtml { basicPage { test() } } }
+    get("/test") { call.respondHtml { htmlWrapper { testPage() } } }
 
     route("/cmp") {
 
         route("/") { get { call.respondBody { home() } } }
 
         route("/voided-tweaks") {
-            get { call.respondBody { voidedTweaks() } }
-            get("/data") { call.respondBody { voidedTweaks() } }
-            get("/crafting") { call.respondBody { voidedTweaks(VoidedTweaksRoutes.CRAFTING) } }
-            get("/resource") { call.respondBody { voidedTweaks(VoidedTweaksRoutes.RESOURCE) } }
+            get { call.respondBody { voidedTweaksPage(module) } }
+            get("/data") { call.respondBody { voidedTweaksPage(module) } }
+            get("/crafting") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } }
+            get("/resource") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } }
             route("{id}") {
                 post("/packAdd") {
+
                     val id = call.parameters["id"]?.toShort()
                     call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.REMOVE) }
                 }
@@ -57,14 +59,14 @@ fun Application.Routing() = routing {
 
         }
 
-        get("/test") { call.respondBody { test() } }
+        get("/test") { call.respondBody { testPage() } }
 
         get("/triminator") { call.respondBody { triminator() } }
 
         get("/*") { call.respondBody { errorPage() } }
     }
 
-    get("/*") { call.respondHtml { basicPage { errorPage() } } }
+    get("/*") { call.respondHtml { htmlWrapper { errorPage() } } }
 
     get("/styles.css") {
         call.respondCss {
@@ -78,7 +80,7 @@ fun Application.Routing() = routing {
     }
 }
 
-fun HTML.basicPage(content: FlowContent.() -> Unit = {}) {
+fun HTML.htmlWrapper(content: FlowContent.() -> Unit = {}) {
     head {
         title("TeamVoided Site")
         link {
@@ -115,22 +117,6 @@ fun FlowContent.home() {
     }
 }
 
-fun FlowContent.voidedTweaks(page: VoidedTweaksRoutes = VoidedTweaksRoutes.DATA) {
-    subnav(VoidedTweaksRoutes.entries)
-    div {
-        h1 {
-            when (page) {
-                VoidedTweaksRoutes.DATA -> voidedTweaksTemplate()
-                VoidedTweaksRoutes.CRAFTING -> +"Hello CRAFTING"
-                VoidedTweaksRoutes.RESOURCE -> +"Hello from RESOURCE"
-            }
-        }
-    }
-}
-
-fun FlowContent.test() {
-    makeTestPage()
-}
 
 fun FlowContent.errorPage() {
     div("flex flex-col w-full h-[90vh] items-center justify-center gap-5") {
@@ -149,7 +135,7 @@ fun FlowContent.triminator() {
 }
 
 
-enum class MainRoutes(val label: String, val url: String) : ArbitraryRout {
+enum class MainRoutes(private val label: String, val url: String) : ArbitraryRout {
     HOME("Home", "/"),
     VOIDED_TWEAKS("Voided Tweaks", "/voided-tweaks"),
     TRIMINATIOR("Triminator", "/triminator"),
@@ -159,16 +145,6 @@ enum class MainRoutes(val label: String, val url: String) : ArbitraryRout {
 
     override fun label() = this.label
     override fun url() = this.url
-}
-
-
-enum class VoidedTweaksRoutes(val label: String, val url: String) : ArbitraryRout {
-    DATA("Data Packs", "/data"),
-    CRAFTING("Crafting Tweaks", "/crafting"),
-    RESOURCE("Resource Packs", "/resource");
-
-    override fun label() = this.label
-    override fun url() = "/voided-tweaks" + this.url
 }
 
 interface ArbitraryRout {
