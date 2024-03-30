@@ -21,7 +21,7 @@ fun packPersistence(packQueries: PackQueries): PackPersistence {
         override fun create(category: Short, name: String, description: String, icon: URL): Either<DomainError, Short> =
             either {
                 val x = packQueries.create(category, name, description, icon.toString()).executeAsOneOrNull()
-                ensureNotNull(x) { GenericException(Exception("Idk")) }
+                ensureNotNull(x) { GenericException(("Idk")) }
             }
 
         override fun getById(id: Short): Either<DomainError, Pack> = either {

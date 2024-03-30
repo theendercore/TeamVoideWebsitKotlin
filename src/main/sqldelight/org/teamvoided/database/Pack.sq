@@ -12,11 +12,6 @@ FROM pack
 WHERE id = :id;
 
 
-selectByName:
-SELECT *
-FROM pack
-WHERE name = :name;
-
 create:
 INSERT INTO pack(category_id, name, description, icon)
 VALUES (:category_id, :name, :descirtion, :icon)

@@ -30,9 +30,11 @@ fun Application.Routing(module: Dependencies) = routing {
         get("/data") { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
         get("/crafting") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } } }
         get("/resource") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } } }
+        voidedTweaksRout(module)
     }
+    adminPanelRout(module)
 
-    route("/triminator") { get { call.respondHtml { htmlWrapper { triminator() } } } }
+    get("/triminator") { call.respondHtml { htmlWrapper { triminator() } } }
 
     get("/test") { call.respondHtml { htmlWrapper { testPage() } } }
 
@@ -58,7 +60,6 @@ fun Application.Routing(module: Dependencies) = routing {
             }
 
         }
-
         get("/test") { call.respondBody { testPage() } }
 
         get("/triminator") { call.respondBody { triminator() } }

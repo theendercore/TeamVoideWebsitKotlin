@@ -25,7 +25,7 @@ fun FlowContent.nav(
     }
 }
 
-fun FlowContent.subnav(
+fun FlowContent.subNav(
     tabs: List<ArbitraryRout>,
     header: String = "w-full px-20 flex-col flex",
     nav: String = "w-full flex items-center justify-center gap-10 text-lg",

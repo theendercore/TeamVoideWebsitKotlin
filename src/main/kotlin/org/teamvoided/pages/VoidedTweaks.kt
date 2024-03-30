@@ -1,10 +1,24 @@
 package org.teamvoided.pages
 
+import arrow.core.getOrElse
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.html.*
+import org.teamvoided.data.CategoryItem
+import org.teamvoided.data.CategoryType
 import org.teamvoided.data.PackItem
 import org.teamvoided.env.Dependencies
 import org.teamvoided.util.Version
 import java.net.URL
+
+
+fun Route.voidedTweaksRout(module: Dependencies) {
+    get("/debug") {
+        val x = module.voidedTweaksService.getCategories(CategoryType.DATA)
+
+        call.respond("This is data: ${x.getOrElse { it }}")
+    }
+}
 
 fun testItem(categoryId: Short, name: String) = PackItem(
     2, categoryId,
@@ -15,7 +29,7 @@ fun testItem(categoryId: Short, name: String) = PackItem(
     Version("1.2.5")
 )
 
-
+fun testCat(id: Short, name: String, packs: List<PackItem>) = CategoryItem(id, name, CategoryType.DATA, packs)
 const val MAIN_PREFIX = "/cmp/voided-tweaks"
 
 @Suppress("MagicNumber")
@@ -28,22 +42,24 @@ val itemList = listOf(
     testItem(5454, "Hallowwer")
 )
 
-val categoryList = mapOf(
-    "Ola" to itemList.filter { it.categoryId == 4435.toShort() },
-    "Hell" to itemList.filter { it.categoryId == 5454.toShort() }
+
+@Suppress("MagicNumber")
+val categoryList = listOf(
+    testCat(4435, "Ola", itemList.filter { it.categoryId == 4435.toShort() }),
+    testCat(5454, "Hell", itemList.filter { it.categoryId == 5454.toShort() })
 )
 
 
 fun FlowContent.voidedTweaksPage(module: Dependencies, page: VoidedTweaksRoutes = VoidedTweaksRoutes.DATA) {
-    subnav(VoidedTweaksRoutes.entries)
+    subNav(VoidedTweaksRoutes.entries)
     div {
         packCraftinator(module, page)
     }
 }
 
-fun FlowContent.packCraftinator(module: Dependencies, packType: VoidedTweaksRoutes) {
-    val x = module.voidedTweaksService
-    if (packType == VoidedTweaksRoutes.DATA) {
+fun FlowContent.packCraftinator(module: Dependencies, packRout: VoidedTweaksRoutes) {
+    val ignored = module.voidedTweaksService
+    if (packRout == VoidedTweaksRoutes.DATA) {
         div("flex gap-6 p-8") {
             div("p-6 flex flex-col gap-4 bg-white bg-opacity-5 w-full rounded-3xl") {
                 div("p-4 px-6 flex bg-white bg-opacity-10 rounded-3xl justify-between") {
@@ -56,10 +72,10 @@ fun FlowContent.packCraftinator(module: Dependencies, packType: VoidedTweaksRout
                         button(classes = "font-bold text-xl") { +">" }
                     }
                 }
-                categoryList.forEach { item ->
+                categoryList.filter { isTheSameAsRout(it.type, packRout) }.forEach { category ->
                     div("flex flex-col gap-2 px-8 py-3 bg-white bg-opacity-5 rounded-3xl ") {
-                        h1("pl-5 text-3xl font-bold font-mono") { +item.key }
-                        div("flex flex-wrap gap-2") { item.value.forEach { selectablePack(it, Type.ADD) } }
+                        h1("pl-5 text-3xl font-bold font-mono") { +category.name }
+                        div("flex flex-wrap gap-2") { category.packs.forEach { selectablePack(it) } }
                     }
                 }
 
@@ -74,10 +90,18 @@ fun FlowContent.packCraftinator(module: Dependencies, packType: VoidedTweaksRout
                 button(classes = "bg-white bg-opacity-5 py-3 text-xl semibold rounded-xl") { +"Download" }
             }
         }
-    } else div { +packType.name }
+    } else div { +packRout.name }
 }
 
-fun FlowContent.selectablePack(item: PackItem, type: Type) {
+fun isTheSameAsRout(type: CategoryType, packRout: VoidedTweaksRoutes): Boolean {
+    return packRout == (when (type) {
+        CategoryType.DATA -> VoidedTweaksRoutes.DATA
+        CategoryType.CRAFTING -> VoidedTweaksRoutes.CRAFTING
+        CategoryType.RESOURCE -> VoidedTweaksRoutes.RESOURCE
+    })
+}
+
+fun FlowContent.selectablePack(item: PackItem, type: Type = Type.ADD) {
     button(
         classes = "w-28 lg:w-32 text-center flex flex-col items-center rounded-xl bg-opacity-5 px-3 py-6 cursor-pointer " +
                 if (type == Type.REMOVE) "bg-white" else ""
@@ -98,6 +122,7 @@ enum class VoidedTweaksRoutes(private val label: String, val url: String) : Arbi
     DATA("Data Packs", "/data"),
     CRAFTING("Crafting Tweaks", "/crafting"),
     RESOURCE("Resource Packs", "/resource");
+
     override fun label() = this.label
     override fun url() = "/voided-tweaks" + this.url
 }

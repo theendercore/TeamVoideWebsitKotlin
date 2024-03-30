@@ -8,3 +8,19 @@ selectById:
 SELECT *
 FROM category
 WHERE id = :id;
+
+
+selectByType:
+SELECT *
+FROM category
+WHERE type = :type;
+
+
+selecAll:
+SELECT *
+FROM category;
+
+create:
+INSERT INTO category( name, type)
+VALUES (:name, :type)
+RETURNING id;
