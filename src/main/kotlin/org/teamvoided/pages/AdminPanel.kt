@@ -6,8 +6,6 @@ import io.ktor.server.html.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.*
-import kotlinx.css.p
 import kotlinx.html.*
 import org.teamvoided.data.CategoryType
 import org.teamvoided.env.Dependencies
@@ -50,14 +48,14 @@ fun FlowContent.adminPanelPage(dependencies: Dependencies) {
                 h3("text-lg bold") { +"Categories Form" }
                 div("w-full flex gap-2 items-center justify-between") {
                     label { +"Name " }
-                    input {
+                    input(classes = "px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
                         type = InputType.text
                         name = "name"
                     }
                 }
                 div("w-full flex gap-2 items-center justify-between") {
                     label { +"Type" }
-                    input {
+                    input(classes = "px-2 py-1 bg-neutral-800 rounded-lg focus:outline-none") {
                         type = InputType.text
                         name = "type"
                     }
