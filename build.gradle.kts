@@ -4,10 +4,18 @@ plugins {
     alias(libs.plugins.ktor) version "2.3.3"
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.detekt)
 }
 
 group = "org.teamvoided"
 version = "0.0.1"
+
+detekt {
+    allRules = true
+    config.setFrom(file("config/detekt/detekt.yml"))
+
+}
+
 
 application {
     mainClass.set("org.teamvoided.ApplicationKt")

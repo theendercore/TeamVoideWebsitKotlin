@@ -15,12 +15,13 @@ fun testItem(categoryId: Short, name: String) = PackItem(
 )
 
 
-val mainPrefix = "/cmp/voided-tweaks"
+const val MAIN_PREFIX = "/cmp/voided-tweaks"
+@Suppress("MagicNumber")
 val itemList = listOf(
     testItem(4435, "Terra Ore"),
     testItem(4435, "Orange Planks"),
     testItem(4435, "Redstone House"),
-    testItem(5454, "Hell Ore Prcoessor"),
+    testItem(5454, "Hell Ore Processor"),
     testItem(5454, "Hell Planks"),
     testItem(5454, "Hallowwer")
 )
@@ -68,7 +69,7 @@ fun FlowContent.selectablePack(item: PackItem, type: Type) {
         classes = "w-28 lg:w-32 text-center flex flex-col items-center rounded-xl bg-opacity-5 px-3 py-6 cursor-pointer " +
                 if (type == Type.REMOVE) "bg-white" else ""
     ) {
-        attributes["hx-post"] = "$mainPrefix/${item.id}/pack${type.id}"
+        attributes["hx-post"] = "$MAIN_PREFIX/${item.id}/pack${type.id}"
         attributes["hx-swap"] = "outerHTML"
         id = item.id.toString()
         img("$item icon", classes = "w-16") {

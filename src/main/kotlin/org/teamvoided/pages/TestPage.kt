@@ -2,7 +2,7 @@ package org.teamvoided.pages
 
 import kotlinx.html.*
 
-
+@Suppress("LongMethod")
 fun FlowContent.makeTestPage() {
     section("w-full py-6") {
         div("container grid items-center justify-center gap-4 px-4 text-center md:px-6") {
