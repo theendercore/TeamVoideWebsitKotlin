@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS category(
     id SMALLSERIAL PRIMARY KEY,
-    name text NOT NULL UNIQUE,
+    name text NOT NULL,
     type text NOT NULL
 );
 
@@ -19,6 +19,12 @@ WHERE type = :type;
 selecAll:
 SELECT *
 FROM category;
+
+delete:
+DELETE
+FROM category
+WHERE id = :id
+RETURNING id;
 
 create:
 INSERT INTO category( name, type)

@@ -27,6 +27,12 @@ fun Route.adminPanelRout(module: Dependencies) {
                 module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
                 call.respondBody { categoryList(module) }
             }
+            delete("/categories") {
+                val params = call.receiveParameters()
+                module.creatorService.deleteCategory(params["id"]!!.toShort())
+//                module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
+                call.respondBody { categoryList(module) }
+            }
         }
 
     }
@@ -91,8 +97,20 @@ fun FlowContent.categoryList(module: Dependencies) {
 
         is Either.Right -> categories.value.forEach {
             div("flex gap-2 items-center justify-center p-1") {
-                span { +it.name }
-                button(classes = "px-3 py-1 rounded-full bg-slate-800") { +"del" }
+                span {
+                    +it.name
+                    span("inline opacity-80") { +" (${it.type})" }
+                }
+                form {
+                    attributes["hx-delete"] = "/cmp/admin/categories"
+                    attributes["hx-target"] = "#category-content"
+                    attributes["hx-swap"] = "innerHTML"
+                    input(classes = "hidden") {
+                        name = "id"
+                        value = it.id.toString()
+                    }
+                    button(classes = "px-3 py-1 rounded-full bg-slate-800") { +" x " }
+                }
             }
         }
     }

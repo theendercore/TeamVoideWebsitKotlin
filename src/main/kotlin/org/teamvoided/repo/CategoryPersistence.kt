@@ -15,8 +15,8 @@ interface CategoryPersistence {
     fun create(name: String, type: CategoryType): Either<DomainError, Short>
     fun getById(id: Short): Either<DomainError, Category>
     fun getByType(type: CategoryType): Either<DomainError, List<Category>>
-
     fun getAll(): Either<DomainError, List<Category>>
+    fun deleteById(id: Short): Either<DomainError, Short>
 }
 
 fun categoryPersistence(categoryQueries: CategoryQueries): CategoryPersistence {
@@ -41,6 +41,11 @@ fun categoryPersistence(categoryQueries: CategoryQueries): CategoryPersistence {
             val categoryList = categoryQueries.selecAll().executeAsList()
             ensure(categoryList.isNotEmpty()) { CategoryNotFound("No Categories where found!") }
             ensureNotNull(categoryList) { CategoryNotFound("No Categories where found!!") }
+        }
+
+        override fun deleteById(id: Short): Either<DomainError, Short> = either {
+            val deletedId = categoryQueries.delete(id).executeAsOneOrNull()
+            ensureNotNull(deletedId) { GenericException("Could not delete $id") }
         }
     }
 }
