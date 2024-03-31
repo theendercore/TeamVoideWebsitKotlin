@@ -26,7 +26,7 @@ fun Route.adminPanelRout(module: Dependencies) {
             route("/categories") {
                 put {
                     val params = call.receiveParameters()
-                    module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
+                    module.creatorService.addCategory(params["name"]!!.trim(), CategoryType.valueOf(params["type"]!!))
                     call.respondBody { categoryList(module) }
                 }
                 delete {
@@ -39,7 +39,7 @@ fun Route.adminPanelRout(module: Dependencies) {
                 put {
                     val params = call.receiveParameters()
                     module.creatorService.addPack(
-                        params["category_id"]!!.toShort(), params["name"]!!,
+                        params["category_id"]!!.toShort(), params["name"]!!.trim(),
                         params["description"]!!, URL(DEFAULT_ICON)
                     )
                     call.respondBody { packList(module) }

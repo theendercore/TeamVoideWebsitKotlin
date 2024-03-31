@@ -11,9 +11,10 @@ import kotlinx.html.FlowContent
 import kotlinx.html.body
 import kotlin.io.path.Path
 
-const val DEFAULT_ICON = "https://vectorified.com/images/default-user-icon-33.jpg"
+const val DEFAULT_ICON = "https://minecraft.wiki/images/Default_pack.png?d7150"
 fun assetFile(path: String) = Path("static/$path").toString()
 fun Version(version: String) = version.toVersion()
+fun format(str: String) = str.trim().replace(Regex("[^A-Za-z]"), "-")
 
 suspend fun RoutingCall.respondBody(status: HttpStatusCode = HttpStatusCode.OK, block: FlowContent.() -> Unit) =
     this.respondHtml(status) { body { block() } }
