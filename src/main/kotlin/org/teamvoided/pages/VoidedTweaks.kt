@@ -14,7 +14,7 @@ import java.net.URL
 
 fun Route.voidedTweaksRout(module: Dependencies) {
     get("/debug") {
-        val x = module.voidedTweaksService.getCategories(CategoryType.DATA)
+        val x = module.voidedTweaksService.getCategoriesByType(CategoryType.DATA)
 
         call.respond("This is data: ${x.getOrElse { it }}")
     }
