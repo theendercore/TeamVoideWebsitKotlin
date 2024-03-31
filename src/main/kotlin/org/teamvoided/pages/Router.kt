@@ -21,8 +21,6 @@ fun Application.Routing(module: Dependencies) = routing {
 
     get("/health-check") { call.respond(HttpStatusCode.OK) }
 
-    get("/debug") { call.respond("Hello $this. ") }
-
     get("/") { call.respondHtml(HttpStatusCode.OK) { htmlWrapper { home() } } }
 
     route("/voided-tweaks") {
