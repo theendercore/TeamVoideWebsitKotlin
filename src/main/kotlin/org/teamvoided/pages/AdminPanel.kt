@@ -7,9 +7,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import kotlinx.serialization.Serializable
 import org.teamvoided.data.CategoryType
 import org.teamvoided.env.Dependencies
+import org.teamvoided.util.DEFAULT_ICON
 import org.teamvoided.util.respondBody
+import java.net.URL
 import kotlin.collections.set
 
 fun Route.adminPanelRout(module: Dependencies) {
@@ -35,37 +38,50 @@ fun Route.adminPanelRout(module: Dependencies) {
             route("/packs") {
                 put {
                     val params = call.receiveParameters()
-//                    module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
-                    call.respondBody { +params.toString() }
+                    module.creatorService.addPack(
+                        params["category_id"]!!.toShort(), params["name"]!!,
+                        params["description"]!!, URL(DEFAULT_ICON)
+                    )
+                    call.respondBody { packList(module) }
                 }
                 delete {
                     val params = call.receiveParameters()
-//                    module.creatorService.deleteCategory(params["id"]!!.toShort())
-                    call.respondBody { +params.toString() }
+                    module.creatorService.deletePack(params["id"]!!.toShort())
+                    call.respondBody { packList(module) }
                 }
             }
             route("/versions") {
                 put {
                     val params = call.receiveParameters()
-//                    module.creatorService.addCategory(params["name"]!!, CategoryType.valueOf(params["type"]!!))
-                    call.respondBody { +params.toString() }
+                    module.creatorService.addVersion(
+                        params["pack_id"]!!.toShort(),
+                        params["min_version"]!!,
+                        params["max_version"]!!,
+                        URL(params["url"]!!),
+                        params["version"]!!
+                    )
+                    call.respondBody { versionList(module) }
                 }
                 delete {
                     val params = call.receiveParameters()
-//                    module.creatorService.deleteCategory(params["id"]!!.toShort())
-                    call.respondBody { +params.toString() }
+                    module.creatorService.deleteVersion(params["id"]!!.toShort())
+                    call.respondBody { versionList(module) }
                 }
             }
         }
 
     }
 
-    get("/debug") {
-        val x = module.voidedTweaksService.getCategoriesByType(CategoryType.DATA)
+    get("/api/packs") {
+        val x = module.voidedTweaksService.getAllPacks()
+            .map { v -> v.map { Pack2(it.id, it.category_id, it.name, it.description, it.icon) } }
 
-        call.respond("This is data: ${x.getOrElse { it }}")
+        call.respond(x.getOrElse { it })
     }
 }
+
+@Serializable
+data class Pack2(val id: Short, val categoryId: Short, val name: String, val description: String, val icon: String)
 
 fun FlowContent.adminPanelPage(module: Dependencies) {
     div("pt-8 w-full flex flex-col gap-6 items-center justify-center px-20") {
@@ -142,6 +158,7 @@ fun FlowContent.adminPanelPage(module: Dependencies) {
                 is Either.Left -> div("flex flex-col items-center p-4") {
                     h3("text-lg bold") { +"Make some Packs to add Versions!" }
                 }
+
                 is Either.Right -> {
                     form(classes = "flex flex-col gap-4 p-4 items-center justify-center") {
                         attributes["hx-put"] = "/cmp/admin/versions"
@@ -164,8 +181,8 @@ fun FlowContent.adminPanelPage(module: Dependencies) {
 
                         styledInput("Link ", "url", InputType.url)
                         styledInput("Version (as in Pack Version) ", "version")
-                        styledInput("Min Version (Minecraft) ", "min-version")
-                        styledInput("Max Version (Minecraft) ", "max-version")
+                        styledInput("Min Version (Minecraft) ", "min_version")
+                        styledInput("Max Version (Minecraft) ", "max_version")
 
                         button(classes = "px-6 py-2 bg-white bg-opacity-20 rounded-full") { +"Submit" }
                     }

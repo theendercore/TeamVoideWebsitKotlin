@@ -16,7 +16,7 @@ suspend fun ResourceScope.dependencies(env: Env): Dependencies {
     val categoryPersistence = categoryPersistence(sqlDelight.categoryQueries)
     val versionPersistence = versionPersistence(sqlDelight.packVersionQueries)
 
-    val creatorService = creatorService(packPersistence, categoryPersistence)
+    val creatorService = creatorService(categoryPersistence, packPersistence, versionPersistence)
     val voidedTweaksService = voidedTweaksService(categoryPersistence, packPersistence, versionPersistence)
 
     return Dependencies(voidedTweaksService, creatorService)
