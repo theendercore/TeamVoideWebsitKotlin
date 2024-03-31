@@ -1,7 +1,9 @@
 package org.teamvoided.repo
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import org.teamvoided.DomainError
 import org.teamvoided.GenericException
@@ -37,11 +39,14 @@ fun voidedTweaksService(
         override fun getCategoriesByType(type: CategoryType): Either<DomainError, List<CategoryItem>> =
             either {
                 val categories = categoryPersistence.getByType(type).bind()
-                val packs = categories.map { packPersistence.getByCategory(it.id) }.bindAll().flatten()
-                    .map { PackItem(it, PackVersion(1, 2, "1.20.0", "1.20.0", "https://google.com", "1.0.0")) }
-
-                val cat = categories.map { CategoryItem(it, packs.filter { p -> p.categoryId == it.id }) }
-                ensureNotNull(cat) { GenericException("Category failed!") }
+                    .mapNotNull {
+                        packPersistence.getByCategory(it.id)
+                            .getOrElse { e -> println(e); null }
+                            ?.map { pack -> PackItem(pack, pv(pack.id)) }
+                            ?.let { packs -> CategoryItem(it, packs) }
+                    }
+                ensure(categories.isNotEmpty()) { GenericException("No Categories Processed!") }
+                ensureNotNull(categories) { GenericException("Category failed!") }
             }
 
         override fun getAllCategories(): Either<DomainError, List<Category>> =
@@ -54,9 +59,10 @@ fun voidedTweaksService(
             either { packPersistence.getAll().bind() }
 
         override fun getPackById(id: Short): Either<DomainError, PackItem> = either {
-            val pack = packPersistence.getById(id).bind()
-            val packItem = PackItem(pack, PackVersion(1, pack.id, "1.20.0", "1.20.1", "https://google.com/dad", "1.0.0"))
-            ensureNotNull(packItem) { GenericException("Pack failed!") }
+            val pack = packPersistence.getById(id)
+                .map { PackItem(it, pv(it.id)) }
+                .bind()
+            ensureNotNull(pack) { GenericException("Pack failed!") }
         }
 
         override fun getVersionsByPack(packId: Short): Either<DomainError, List<PackVersion>> =
@@ -67,3 +73,6 @@ fun voidedTweaksService(
 
     }
 }
+
+
+private fun pv(id: Short) = PackVersion(1, id, "1.20.0", "1.20.0", "https://google.com", "1.0.0")

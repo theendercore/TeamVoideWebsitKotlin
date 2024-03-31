@@ -14,10 +14,8 @@ import java.net.URL
 interface PackPersistence {
     fun getById(id: Short): Either<DomainError, Pack>
     fun getByCategory(categoryId: Short): Either<DomainError, List<Pack>>
-
     fun getAll(): Either<DomainError, List<Pack>>
     fun create(category: Short, name: String, description: String, icon: URL): Either<DomainError, Short>
-
     fun deleteById(id: Short): Either<DomainError, Short>
 }
 
