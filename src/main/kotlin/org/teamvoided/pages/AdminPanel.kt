@@ -138,7 +138,7 @@ fun FlowContent.adminPanelPage(module: Dependencies) {
         }
 
         div("w-full flex gap-8 p-2 justify-around") {
-            when (val packs = module.voidedTweaksService.getAllCategories()) {
+            when (val packs = module.voidedTweaksService.getAllPacks()) {
                 is Either.Left -> div("flex flex-col items-center p-4") {
                     h3("text-lg bold") { +"Make some Packs to add Versions!" }
                 }
@@ -209,7 +209,7 @@ fun FlowContent.categoryList(module: Dependencies) {
 }
 
 fun FlowContent.packList(module: Dependencies) {
-    when (val packs = module.voidedTweaksService.getAllCategories()) {
+    when (val packs = module.voidedTweaksService.getAllPacks()) {
         is Either.Left -> div("flex flex-col items-center p-4") {
             h3("text-lg bold") { +"No Packs found!" }
             p("italic opacity-80") { +packs.value.toString() }
@@ -219,7 +219,7 @@ fun FlowContent.packList(module: Dependencies) {
             div("flex gap-2 items-center justify-center p-1") {
                 span {
                     +it.name
-                    span("inline opacity-80") { +" (${it.type})" }
+                    span("inline opacity-80 text-sm") { +" (${it.description})" }
                 }
                 form {
                     attributes["hx-delete"] = "/cmp/admin/packs"
@@ -237,7 +237,7 @@ fun FlowContent.packList(module: Dependencies) {
 }
 
 fun FlowContent.versionList(module: Dependencies) {
-    when (val versions = module.voidedTweaksService.getAllCategories()) {
+    when (val versions = module.voidedTweaksService.getAllVersions()) {
         is Either.Left -> div("flex flex-col items-center p-4") {
             h3("text-lg bold") { +"No Versions found!" }
             p("italic opacity-80") { +versions.value.toString() }
@@ -246,8 +246,8 @@ fun FlowContent.versionList(module: Dependencies) {
         is Either.Right -> versions.value.forEach {
             div("flex gap-2 items-center justify-center p-1") {
                 span {
-                    +it.name
-                    span("inline opacity-80") { +" (${it.type})" }
+                    +it.version
+                    span("inline opacity-80") { +" (${it.pack_id})" }
                 }
                 form {
                     attributes["hx-delete"] = "/cmp/admin/versions"

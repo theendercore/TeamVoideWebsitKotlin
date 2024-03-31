@@ -11,8 +11,22 @@ SELECT *
 FROM pack
 WHERE id = :id;
 
+selectAll:
+SELECT *
+FROM pack;
+
+selectByCategoryId:
+SELECT *
+FROM pack
+WHERE category_id = :id;
 
 create:
 INSERT INTO pack(category_id, name, description, icon)
 VALUES (:category_id, :name, :descirtion, :icon)
+RETURNING id;
+
+delete:
+DELETE
+FROM pack
+WHERE id = :id
 RETURNING id;

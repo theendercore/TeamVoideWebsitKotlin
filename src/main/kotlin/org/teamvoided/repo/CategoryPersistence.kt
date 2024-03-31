@@ -12,20 +12,15 @@ import org.teamvoided.database.Category
 import org.teamvoided.database.CategoryQueries
 
 interface CategoryPersistence {
-    fun create(name: String, type: CategoryType): Either<DomainError, Short>
     fun getById(id: Short): Either<DomainError, Category>
     fun getByType(type: CategoryType): Either<DomainError, List<Category>>
     fun getAll(): Either<DomainError, List<Category>>
+    fun create(name: String, type: CategoryType): Either<DomainError, Short>
     fun deleteById(id: Short): Either<DomainError, Short>
 }
 
 fun categoryPersistence(categoryQueries: CategoryQueries): CategoryPersistence {
     return object : CategoryPersistence {
-        override fun create(name: String, type: CategoryType): Either<DomainError, Short> = either {
-            val id = categoryQueries.create(name, type.toString()).executeAsOneOrNull()
-            ensureNotNull(id) { GenericException("Error creating category $name") }
-        }
-
         override fun getById(id: Short): Either<DomainError, Category> = either {
             val category = categoryQueries.selectById(id, ::Category).executeAsOneOrNull()
             ensureNotNull(category) { CategoryNotFound("Category[$id] not found!") }
@@ -41,6 +36,11 @@ fun categoryPersistence(categoryQueries: CategoryQueries): CategoryPersistence {
             val categoryList = categoryQueries.selecAll().executeAsList()
             ensure(categoryList.isNotEmpty()) { CategoryNotFound("No Categories where found!") }
             ensureNotNull(categoryList) { CategoryNotFound("No Categories where found!!") }
+        }
+
+        override fun create(name: String, type: CategoryType): Either<DomainError, Short> = either {
+            val id = categoryQueries.create(name, type.toString()).executeAsOneOrNull()
+            ensureNotNull(id) { GenericException("Error creating Category $name") }
         }
 
         override fun deleteById(id: Short): Either<DomainError, Short> = either {

@@ -11,3 +11,23 @@ selectById:
 SELECT *
 FROM packVersion
 WHERE id = :id;
+
+selectAll:
+SELECT *
+FROM packVersion;
+
+selectByPackId:
+SELECT *
+FROM packVersion
+WHERE pack_id = :id;
+
+create:
+INSERT INTO packVersion( pack_id, min_version, max_version, url, version)
+VALUES (:pack_id,:min_version, :max_version, :url, :version)
+RETURNING id;
+
+delete:
+DELETE
+FROM packVersion
+WHERE id = :id
+RETURNING id;

@@ -20,32 +20,28 @@ interface VoidedTweaksService {
 }
 
 fun voidedTweaksService(
-    ignored: PackPersistence, categoryPersistence: CategoryPersistence
+    categoryPersistence: CategoryPersistence,
+    packPersistence: PackPersistence,
+    versionPersistence: VersionPersistence
 ): VoidedTweaksService {
     return object : VoidedTweaksService {
-        override fun getCategoriesByType(type: CategoryType): Either<DomainError, List<Category>> = either {
-            categoryPersistence.getByType(type).bind()
-        }
+        override fun getCategoriesByType(type: CategoryType): Either<DomainError, List<Category>> =
+            either { categoryPersistence.getByType(type).bind() }
 
-        override fun getAllCategories(): Either<DomainError, List<Category>> = either {
-            categoryPersistence.getAll().bind()
-        }
+        override fun getAllCategories(): Either<DomainError, List<Category>> =
+            either { categoryPersistence.getAll().bind() }
 
-        override fun getPacksByCategory(categoryId: Short): Either<DomainError, List<Pack>> {
-            TODO("Not yet implemented")
-        }
+        override fun getPacksByCategory(categoryId: Short): Either<DomainError, List<Pack>> =
+            either { packPersistence.getByCategory(categoryId).bind() }
 
-        override fun getAllPacks(): Either<DomainError, List<Pack>> {
-            TODO("Not yet implemented")
-        }
+        override fun getAllPacks(): Either<DomainError, List<Pack>> =
+            either { packPersistence.getAll().bind() }
 
-        override fun getVersionsByPack(packId: Short): Either<DomainError, List<PackVersion>> {
-            TODO("Not yet implemented")
-        }
+        override fun getVersionsByPack(packId: Short): Either<DomainError, List<PackVersion>> =
+            either { versionPersistence.getByPack(packId).bind() }
 
-        override fun getAllVersions(): Either<DomainError, List<PackVersion>> {
-            TODO("Not yet implemented")
-        }
+        override fun getAllVersions(): Either<DomainError, List<PackVersion>> =
+            either { versionPersistence.getAll().bind() }
 
     }
 }
