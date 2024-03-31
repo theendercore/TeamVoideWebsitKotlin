@@ -1,6 +1,7 @@
 package org.teamvoided.pages
 
 import arrow.core.getOrElse
+import io.ktor.server.html.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
@@ -9,14 +10,41 @@ import org.teamvoided.data.CategoryType
 import org.teamvoided.data.PackItem
 import org.teamvoided.env.Dependencies
 import org.teamvoided.util.Version
+import org.teamvoided.util.respondBody
 import java.net.URL
 
 
 fun Route.voidedTweaksRout(module: Dependencies) {
-    get("/debug") {
-        val x = module.voidedTweaksService.getCategoriesByType(CategoryType.DATA)
 
-        call.respond("This is data: ${x.getOrElse { it }}")
+    route("/voided-tweaks") {
+        get { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
+        get("/data") { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
+        get("/crafting") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } } }
+        get("/resource") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } } }
+        get("/debug") {
+            val x = module.voidedTweaksService.getCategoriesByType(CategoryType.DATA)
+
+            call.respond("This is data: ${x.getOrElse { it }}")
+        }
+    }
+    route("/cmp") {
+        route("/voided-tweaks") {
+            get { call.respondBody { voidedTweaksPage(module) } }
+            get("/data") { call.respondBody { voidedTweaksPage(module) } }
+            get("/crafting") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } }
+            get("/resource") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } }
+            route("{id}") {
+                post("/packAdd") {
+
+                    val id = call.parameters["id"]?.toShort()
+                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.REMOVE) }
+                }
+                post("/packRemove") {
+                    val id = call.parameters["id"]?.toShort()
+                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.ADD) }
+                }
+            }
+        }
     }
 }
 

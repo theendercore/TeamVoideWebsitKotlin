@@ -23,13 +23,8 @@ fun Application.Routing(module: Dependencies) = routing {
 
     get("/") { call.respondHtml(HttpStatusCode.OK) { htmlWrapper { home() } } }
 
-    route("/voided-tweaks") {
-        get { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
-        get("/data") { call.respondHtml { htmlWrapper { voidedTweaksPage(module) } } }
-        get("/crafting") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } } }
-        get("/resource") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } } }
-        voidedTweaksRout(module)
-    }
+    voidedTweaksRout(module)
+
     adminPanelRout(module)
 
     get("/triminator") { call.respondHtml { htmlWrapper { triminator() } } }
@@ -40,24 +35,6 @@ fun Application.Routing(module: Dependencies) = routing {
 
         route("/") { get { call.respondBody { home() } } }
 
-        route("/voided-tweaks") {
-            get { call.respondBody { voidedTweaksPage(module) } }
-            get("/data") { call.respondBody { voidedTweaksPage(module) } }
-            get("/crafting") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } }
-            get("/resource") { call.respondBody { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } }
-            route("{id}") {
-                post("/packAdd") {
-
-                    val id = call.parameters["id"]?.toShort()
-                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.REMOVE) }
-                }
-                post("/packRemove") {
-                    val id = call.parameters["id"]?.toShort()
-                    call.respondBody { selectablePack(itemList.find { it.id == id }!!, Type.ADD) }
-                }
-            }
-
-        }
         get("/test") { call.respondBody { testPage() } }
 
         get("/triminator") { call.respondBody { triminator() } }
