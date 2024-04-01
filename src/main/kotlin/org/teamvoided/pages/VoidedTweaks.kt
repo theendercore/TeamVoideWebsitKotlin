@@ -2,8 +2,9 @@ package org.teamvoided.pages
 
 import arrow.core.Either
 import arrow.core.getOrElse
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 import io.ktor.server.html.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import org.teamvoided.CategoryNotFound
@@ -11,6 +12,7 @@ import org.teamvoided.data.CategoryType
 import org.teamvoided.data.PackItem
 import org.teamvoided.env.Dependencies
 import org.teamvoided.util.format
+import org.teamvoided.util.jsFile
 import org.teamvoided.util.respondBody
 
 
@@ -23,9 +25,17 @@ fun Route.voidedTweaksRout(module: Dependencies) {
         get("/crafting") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.CRAFTING) } } }
         get("/resource") { call.respondHtml { htmlWrapper { voidedTweaksPage(module, VoidedTweaksRoutes.RESOURCE) } } }
         get("/debug") {
-            val x = module.voidedTweaksService.getCategoriesByTypeOld(CategoryType.DATA)
+            val str = either {
+                val ids = call.parameters["data-id"]
+                ensureNotNull(ids) { "null" }
 
-            call.respond("This is data: ${x.getOrElse { it }}")
+                module.downloaderService.downloadPacks(
+                    ids.split(",")
+                        .map { it.toShort() },
+                    CategoryType.DATA
+                )
+            }
+            call.respondBody { modal(str.getOrElse { it }.toString()) }
         }
     }
     route(CMP_PREFIX) {
@@ -53,8 +63,8 @@ fun Route.voidedTweaksRout(module: Dependencies) {
                 }
             }
         }
-
     }
+
 }
 
 
@@ -103,11 +113,22 @@ fun FlowContent.packCraftinator(module: Dependencies, category: CategoryType) {
         div("flex flex-col w-64 gap-5 p-5") {
             div("flex flex-col gap-2 bg-white bg-opacity-10 p-3 rounded-xl") {
                 span("text-lg") { +"Selected Packs:" }
-                ul("flex flex-col gap-2 bg-bg rounded p-2") { id = "pack-list" }
+                ul("flex flex-col gap-2 bg-bg rounded p-2") {
+                    attributes["hx-get"] = "/"
+                    id = "pack-list"
+                }
             }
-            button(classes = "bg-white bg-opacity-5 py-3 text-xl semibold rounded-xl") { +"Download" }
+            button(classes = "bg-white bg-opacity-5 py-3 text-xl semibold rounded-xl") {
+                attributes["hx-get"] = "/voided-tweaks/debug"
+                attributes["hx-target"] = "body"
+                attributes["hx-swap"] = "beforeend"
+                id = "download"
+                +"Download"
+            }
         }
     }
+
+    script { src = jsFile("submit") }
 }
 
 fun getCategoryType(packRout: VoidedTweaksRoutes): CategoryType {
@@ -115,6 +136,22 @@ fun getCategoryType(packRout: VoidedTweaksRoutes): CategoryType {
         VoidedTweaksRoutes.DATA -> CategoryType.DATA
         VoidedTweaksRoutes.CRAFTING -> CategoryType.CRAFTING
         VoidedTweaksRoutes.RESOURCE -> CategoryType.RESOURCE
+    }
+}
+
+fun FlowContent.modal(data: String = "") {
+    div("fixed inset-0 flex items-center justify-center z-50 bg-white bg-opacity-5") {
+        attributes["hx-on:click"] = "closeModal(event)"
+        id = "modalId"
+        div("bg-gray-500 p-6 rounded shadow-lg") {
+            attributes["hx-on:click"] = ""
+            p { +"Content: $data" }
+            button {
+                attributes["hx-on:click"] = "alert(\"hahahaahah\")"
+                +"btn"
+            }
+
+        }
     }
 }
 

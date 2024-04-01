@@ -5,7 +5,8 @@ import org.teamvoided.repo.*
 
 class Dependencies(
     val voidedTweaksService: VoidedTweaksService,
-    val creatorService: CreatorService
+    val creatorService: CreatorService,
+    val downloaderService: DownloaderService
 )
 
 suspend fun ResourceScope.dependencies(env: Env): Dependencies {
@@ -18,6 +19,6 @@ suspend fun ResourceScope.dependencies(env: Env): Dependencies {
 
     val creatorService = creatorService(categoryPersistence, packPersistence, versionPersistence)
     val voidedTweaksService = voidedTweaksService(categoryPersistence, packPersistence, versionPersistence)
-
-    return Dependencies(voidedTweaksService, creatorService)
+    val downloaderService = downloaderService(packPersistence, versionPersistence)
+    return Dependencies(voidedTweaksService, creatorService, downloaderService)
 }

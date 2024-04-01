@@ -29,13 +29,10 @@ fun Application.Routing(module: Dependencies) = routing {
 
     get("/triminator") { call.respondHtml { htmlWrapper { triminator() } } }
 
-    get("/test") { call.respondHtml { htmlWrapper { testPage() } } }
+    testRouting(module)
 
     route("/cmp") {
-
         route("/") { get { call.respondBody { home() } } }
-
-        get("/test") { call.respondBody { testPage() } }
 
         get("/triminator") { call.respondBody { triminator() } }
 

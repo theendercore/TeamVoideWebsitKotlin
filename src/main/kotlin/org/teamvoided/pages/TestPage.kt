@@ -1,9 +1,46 @@
 package org.teamvoided.pages
 
+import io.ktor.server.html.*
+import io.ktor.server.request.*
+import io.ktor.server.routing.*
+import io.ktor.util.*
 import kotlinx.html.*
+import org.teamvoided.env.Dependencies
+import org.teamvoided.util.respondBody
+
+
+fun Route.testRouting(ignored: Dependencies) {
+    route("/cmp") {
+        get("/test") { call.respondBody { testPage() } }
+    }
+
+    route("/test") {
+        get() { call.respondHtml { htmlWrapper { testPage() } } }
+
+        get("/debug") {
+            val z  = call.parameters["data-id"]!!
+            call.respondBody { +"$z" }
+        }
+    }
+}
 
 @Suppress("LongMethod")
 fun FlowContent.testPage() {
+    div("flex items-center justify-center") {
+
+        button {
+            attributes["hx-get"] = "/test/debug"
+            attributes["hx-on:htmx:configRequest"] = "event.detail.parameters.elementId = this.id"
+            attributes["hx-swap"] = "none"
+            id = "hello_there"
+            +"Click Me"
+        }
+    }
+
+
+
+
+
     section("w-full py-6") {
         div("container grid items-center justify-center gap-4 px-4 text-center md:px-6") {
             div("space-y-3") {
