@@ -6,6 +6,7 @@ import io.ktor.server.html.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import org.teamvoided.CategoryNotFound
 import org.teamvoided.data.CategoryType
 import org.teamvoided.data.PackItem
 import org.teamvoided.env.Dependencies
@@ -78,12 +79,20 @@ fun FlowContent.packCraftinator(module: Dependencies, category: CategoryType) {
                     button(classes = "font-bold text-xl") { +">" }
                 }
             }
-            div {
+            div("flex flex-col gap-3 w-full h-full") {
                 when (catgories) {
-                    is Either.Left -> +catgories.value.toString()
+                    is Either.Left -> {
+                        println("Error loading packs: ${catgories.value}")
+                        +when (catgories.value) {
+                            is CategoryNotFound -> "There are no packs in this category."
+                            else -> "There was a problem on the sever! Send help :)"
+                        }
+                    }
+
                     is Either.Right -> catgories.value.forEach { category ->
-                        div("flex flex-col gap-2 px-8 py-3 bg-white bg-opacity-5 rounded-3xl ") {
-                            h1("pl-5 text-3xl font-bold font-mono") { +category.name }
+                        details("flex flex-col gap-2 px-8 py-3 bg-white bg-opacity-5 rounded-3xl ") {
+                            open = true
+                            summary("pl-5 text-3xl font-bold font-mono") { +category.name }
                             div("flex flex-wrap gap-2") { category.packs.forEach { selectablePack(it) } }
                         }
                     }
