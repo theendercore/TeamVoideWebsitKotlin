@@ -8,14 +8,12 @@ plugins {
 }
 
 group = "org.teamvoided"
-version = "0.0.1"
+version = "1.0.0"
 
 detekt {
     allRules = true
     config.setFrom(file("config/detekt/detekt.yml"))
-
 }
-
 
 application {
     mainClass.set("org.teamvoided.ApplicationKt")

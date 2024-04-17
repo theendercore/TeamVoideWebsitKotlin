@@ -14,7 +14,7 @@ import org.teamvoided.util.DEFAULT_ICON
 import org.teamvoided.util.respondBody
 import java.net.URL
 import kotlin.collections.set
-
+@Suppress("unused")
 fun Route.adminPanelRout(module: Dependencies) {
 
     get("/admin") { call.respondHtml { htmlWrapper { adminPanelPage(module) } } }
@@ -82,7 +82,7 @@ fun Route.adminPanelRout(module: Dependencies) {
 
 @Serializable
 data class Pack2(val id: Short, val categoryId: Short, val name: String, val description: String, val icon: String)
-
+@Suppress("LongMethod")
 fun FlowContent.adminPanelPage(module: Dependencies) {
     div("pt-8 w-full flex flex-col gap-6 items-center justify-center px-20") {
         h1("text-3xl black font-mono") { +"The super secret and evil admin panel!" }

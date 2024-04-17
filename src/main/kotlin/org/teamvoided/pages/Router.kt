@@ -10,12 +10,10 @@ import kotlinx.css.Color
 import kotlinx.css.backgroundColor
 import kotlinx.css.color
 import kotlinx.html.*
-import org.teamvoided.env.Dependencies
-import org.teamvoided.util.assetFile
 import org.teamvoided.util.respondBody
 import org.teamvoided.util.respondCss
 
-fun Application.Routing(module: Dependencies) = routing {
+fun Application.Routing(/*module: Dependencies*/) = routing {
 
     staticResources("/static", "assets")
 
@@ -23,13 +21,13 @@ fun Application.Routing(module: Dependencies) = routing {
 
     get("/") { call.respondHtml(HttpStatusCode.OK) { htmlWrapper { home() } } }
 
-    voidedTweaksRout(module)
-
-    adminPanelRout(module)
-
     get("/triminator") { call.respondHtml { htmlWrapper { triminator() } } }
 
-    testRouting(module)
+//    voidedTweaksRout(module)
+
+//    adminPanelRout(module)
+
+//    testRouting(module)
 
     route("/cmp") {
         route("/") { get { call.respondBody { home() } } }
@@ -66,26 +64,10 @@ fun HTML.htmlWrapper(content: FlowContent.() -> Unit = {}) {
     }
 
     body("bg-bg text-text h-full") {
-        nav(MainRoutes.entries.filter { it != MainRoutes.ERROR })
+        nav(MainRoutes.entries.filter { it == MainRoutes.HOME || it == MainRoutes.TRIMINATOR })
         div("h-full") {
             id = "main-content"
             content()
-        }
-    }
-}
-
-
-fun FlowContent.home() {
-    div {
-        classes += "flex h-[90vh] flex-col items-center justify-center gap-8"
-        img {
-            src = assetFile("logo.png")
-            alt = "TeamVoided logo"
-            width = "800"
-        }
-        h1 {
-            classes += "text-xl font-light italic"
-            +"\"The best god dam space crab pirates you have ever seen!\""
         }
     }
 }
@@ -111,7 +93,7 @@ fun FlowContent.triminator() {
 enum class MainRoutes(private val label: String, val url: String) : ArbitraryRout {
     HOME("Home", "/"),
     VOIDED_TWEAKS("Voided Tweaks", "/voided-tweaks"),
-    TRIMINATIOR("Triminator", "/triminator"),
+    TRIMINATOR("Triminator", "/triminator"),
     TEST("Test", "/test"),
     ADMIN("Admin", "/admin"),
     ERROR("Error", "/*");

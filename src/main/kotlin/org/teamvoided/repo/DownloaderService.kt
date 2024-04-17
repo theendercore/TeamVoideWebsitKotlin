@@ -10,6 +10,7 @@ interface DownloaderService {
 
 }
 
+@Suppress("UnusedParameter")
 fun downloaderService(
     packPersistence: PackPersistence,
     versionPersistence: VersionPersistence
