@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine as build
 
-WORKDIR /src
-COPY . /src
+#WORKDIR /src
+#COPY . /src
 
 RUN gradlew buildDependents --no-daemon
 
